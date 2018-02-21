@@ -62,5 +62,16 @@ object Lizt { // `List` companion object. Contains functions for creating and wo
     case Cons(_, ts) => 1 + length(ts)
   }
 
-  def length2[A](as: Lizt[A]): Int = foldRight(as, 0)((_, y) => 1 + y)
+  def length2[A](as: Lizt[A]): Int = foldRight(as, 0)((_, a) => 1 + a)
+
+  def foldLeft[A,B](as: Lizt[A], z: B)(f: (B, A) => B): B = as match {
+    case Nill => z
+    case Cons(x, xs) => foldLeft(xs, f(z, x))(f)
+  }
+
+  def sum3(ints: Lizt[Int]): Int = foldLeft(ints, 0)(_ + _)
+
+  def product3(ds: Lizt[Double]): Double = foldLeft(ds, 1.0)(_ * _)
+
+  def length3[A](as: Lizt[A]): Int = foldLeft(as, 0)((a, _) => 1 + a)
 }
