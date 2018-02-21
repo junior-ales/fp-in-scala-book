@@ -55,7 +55,7 @@ object Lizt { // `List` companion object. Contains functions for creating and wo
 
   def sum2(ints: Lizt[Int]): Int = foldRight(ints, 0)(_ + _)
 
-  def product2(ds: Lizt[Double]): Double = foldRight(ds, 0.0)(_ * _)
+  def product2(ds: Lizt[Double]): Double = foldRight(ds, 1.0)(_ * _)
 
   def length[A](as: Lizt[A]): Int = as match {
     case Nill => 0
