@@ -68,36 +68,27 @@ class LiztTest extends FlatSpec with Matchers {
   }
 
   "Lizt dropWhile" should "drop no element from a non-empty list" in {
-    val result = Lizt.dropWhile((_: String) => false, Lizt("foo", "bar"))
-
+    val result =  Lizt.dropWhile(Lizt("foo", "bar"))(_ => false)
     result shouldBe Lizt("foo", "bar")
   }
 
   it should "not drop anything from an empty list when fn evals to true" in {
-    val result = Lizt.dropWhile((_: String) => true, Nill)
-
+    val result = Lizt.dropWhile(Nill)(_ => true)
     result shouldBe Nill
   }
 
   it should "not drop anything from an empty list when fn evals to false" in {
-    val result = Lizt.dropWhile((_: String) => false, Nill)
-
+    val result = Lizt.dropWhile(Nill)(_ => false)
     result shouldBe Nill
   }
 
   it should "drop one element from a non-empty list" in {
-    val isFoo = (x: String) => x == "foo"
-
-    val result = Lizt.dropWhile(isFoo, Lizt("foo", "bar"))
-
+    val result = Lizt.dropWhile(Lizt("foo", "bar"))(_ == "foo")
     result shouldBe Lizt("bar")
   }
 
   it should "drop all elements from a non-empty list" in {
-    val isNotEmpty = (x: String) => !x.isEmpty
-
-    val result = Lizt.dropWhile(isNotEmpty, Lizt("foo", "bar"))
-
+    val result = Lizt.dropWhile(Lizt(65, 89))(_ > 50)
     result shouldBe Nill
   }
 

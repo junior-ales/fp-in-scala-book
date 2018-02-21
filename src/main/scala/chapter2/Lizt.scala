@@ -36,8 +36,8 @@ object Lizt { // `List` companion object. Contains functions for creating and wo
     else drop(n - 1, tail(ls))
   }
 
-  def dropWhile[A](fn: A => Boolean, ls: Lizt[A]): Lizt[A] = ls match {
-    case Cons(x, xs) if fn(x) => dropWhile(fn, xs)
+  def dropWhile[A](ls: Lizt[A])(fn: A => Boolean): Lizt[A] = ls match {
+    case Cons(x, xs) if fn(x) => dropWhile(xs)(fn)
     case _ => ls
   }
 
