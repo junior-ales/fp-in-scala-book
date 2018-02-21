@@ -16,6 +16,16 @@ class LiztTest extends FlatSpec with Matchers {
     result shouldBe 3
   }
 
+  "Lizt sum" should "sum elements of a non-empty list" in {
+    Lizt.sum(Lizt(12, 3)) shouldBe 15
+  }
+
+  it should "sum and sum2 return the same value" in {
+    Lizt.sum(Lizt(9, 5)) shouldBe Lizt.sum2(Lizt(9, 5))
+    Lizt.sum(Lizt(1)) shouldBe Lizt.sum2(Lizt(1))
+    Lizt.sum(Nill) shouldBe Lizt.sum2(Nill)
+  }
+
   "Lizt tail" should "take it from a singleton list" in {
     Lizt.tail(Lizt(3)) shouldBe Nill
   }
@@ -105,4 +115,21 @@ class LiztTest extends FlatSpec with Matchers {
     Lizt.init(Nill) shouldBe ???
   }
 
+  "Lizt length" should "get the length of a non-empty list" in {
+    Lizt.length(Lizt('3', 'b', 'f', '1')) shouldBe 4
+  }
+
+  it should "get the length of an empty list" in {
+    Lizt.length(Nill) shouldBe 0
+  }
+
+  it should "get the length of a singleton list" in {
+    Lizt.length(Lizt(8)) shouldBe 1
+  }
+
+  it should "be the same as length2" in {
+    Lizt.length(Nill) shouldBe Lizt.length2(Nill)
+    Lizt.length(Lizt(89)) shouldBe Lizt.length2(Lizt(89))
+    Lizt.length(Lizt(4,265,6,5462,4562,4)) shouldBe Lizt.length2(Lizt(4,265,6,5462,4562,4))
+  }
 }

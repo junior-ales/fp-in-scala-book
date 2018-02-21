@@ -6,6 +6,7 @@ case object Nill extends Lizt[Nothing] // A `List` data constructor representing
 case class Cons[+A](head: A, tail: Lizt[A]) extends Lizt[A] // Another data constructor, representing nonempty lists. Note that `tail` is another `List[A]`, which may be `Nil` or another `Cons`. */
 
 object Lizt { // `List` companion object. Contains functions for creating and working with lists.
+
   def sum(ints: Lizt[Int]): Int = ints match { // A function that uses pattern matching to add up a list of integers
     case Nill => 0 // The sum of the empty list is 0.
     case Cons(x, xs) => x + sum(xs) // The sum of a list starting with `x` is `x` plus the sum of the rest of the list.
@@ -46,4 +47,20 @@ object Lizt { // `List` companion object. Contains functions for creating and wo
     case Cons(_, Nill) => Nill
     case Cons(x, xs) => Cons(x, init(xs))
   }
+
+  def foldRight[A, B](as: Lizt[A], z: B)(f: (A, B) => B): B = as match {
+    case Nill => z
+    case Cons(x, xs) => f(x, foldRight(xs, z)(f))
+  }
+
+  def sum2(ints: Lizt[Int]): Int = foldRight(ints, 0)(_ + _)
+
+  def product2(ds: Lizt[Double]): Double = foldRight(ds, 0.0)(_ * _)
+
+  def length[A](as: Lizt[A]): Int = as match {
+    case Nill => 0
+    case Cons(_, ts) => 1 + length(ts)
+  }
+
+  def length2[A](as: Lizt[A]): Int = foldRight(as, 0)((_, y) => 1 + y)
 }
