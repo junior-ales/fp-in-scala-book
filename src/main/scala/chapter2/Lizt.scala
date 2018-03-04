@@ -77,4 +77,12 @@ object Lizt { // `List` companion object. Contains functions for creating and wo
 
   def reverse[T](xs: Lizt[T]): Lizt[T] =
     foldLeft(xs, Nill: Lizt[T])((ys, y) => Cons(y, ys))
+
+  def appendOne[T](xs: Lizt[T], x: T): Lizt[T] = xs match {
+    case Nill => Lizt(x)
+    case Cons(y, Nill) => Cons(y, Cons(x, Nill))
+    case Cons(y, ys) => Cons(y, appendOne(ys, x))
+  }
+
+  def appendList[T](xs: Lizt[T], ys: Lizt[T]): Lizt[T] = foldRight(xs, ys)(Cons(_, _))
 }

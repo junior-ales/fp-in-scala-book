@@ -194,4 +194,24 @@ class LiztTest extends FlatSpec with Matchers {
     Lizt.reverse(Lizt("foo", "bar", "eita")) shouldBe Lizt("eita", "bar", "foo")
   }
 
+  "Lizt appendOne" should "append one element to an empty list" in {
+    Lizt.appendOne(Nill: Lizt[Int], 3) shouldBe Lizt(3)
+  }
+
+  it should "append one element to a non-empty list of one element" in {
+    Lizt.appendOne(Lizt('d'), 'i') shouldBe Lizt('d', 'i')
+  }
+
+  it should "append one element to a non-empty list of several elements" in {
+    Lizt.appendOne(Lizt("foo", "bar"), "baz") shouldBe Lizt("foo", "bar", "baz")
+  }
+
+  "Lizt appendList" should "append two empty lists" in {
+    Lizt.appendList(Nill, Nill) shouldBe Nill
+  }
+
+  it should "append two non-empty lists" in {
+    Lizt.appendList(Lizt(1,2), Lizt(3,4)) shouldBe Lizt(1,2,3,4)
+  }
+
 }
