@@ -1,4 +1,4 @@
-package chapter2
+package chapter3
 
 sealed trait Lizt[+A] // `List` data type, parameterized on a type, `A`
 
