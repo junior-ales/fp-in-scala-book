@@ -182,4 +182,16 @@ class LiztTest extends FlatSpec with Matchers {
     Lizt.foldRight(Lizt(34,6), 8)(_ * _) shouldBe Lizt.foldLeft(Lizt(34,6), 8)(_ * _)
   }
 
+  "Lizt reverse" should "return a reversed list of an empty list" in {
+    Lizt.reverse(Nill) shouldBe Nill
+  }
+
+  it should "reverse a singleton list" in {
+    Lizt.reverse(Lizt(65)) shouldBe Lizt(65)
+  }
+
+  it should "reverse a non-empty list" in {
+    Lizt.reverse(Lizt("foo", "bar", "eita")) shouldBe Lizt("eita", "bar", "foo")
+  }
+
 }

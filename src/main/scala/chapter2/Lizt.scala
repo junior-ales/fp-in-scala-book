@@ -74,4 +74,7 @@ object Lizt { // `List` companion object. Contains functions for creating and wo
   def product3(ds: Lizt[Double]): Double = foldLeft(ds, 1.0)(_ * _)
 
   def length3[A](as: Lizt[A]): Int = foldLeft(as, 0)((a, _) => 1 + a)
+
+  def reverse[T](xs: Lizt[T]): Lizt[T] =
+    foldLeft(xs, Nill: Lizt[T])((ys, y) => Cons(y, ys))
 }
