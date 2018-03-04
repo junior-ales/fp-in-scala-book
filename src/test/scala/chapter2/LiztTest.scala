@@ -214,4 +214,20 @@ class LiztTest extends FlatSpec with Matchers {
     Lizt.appendList(Lizt(1,2), Lizt(3,4)) shouldBe Lizt(1,2,3,4)
   }
 
+  "Lizt addOne" should "add one to a non-empty list" in {
+    Lizt.addOne(Lizt(5)) shouldBe Lizt(6)
+    Lizt.addOne(Lizt(4,5)) shouldBe Lizt(5,6)
+  }
+
+  it should "add none in an empty list" in {
+    Lizt.addOne(Nill) shouldBe Nill
+  }
+
+  "Lizt doubleToString" should "return an empty string if an empty lizt is passed" in {
+    Lizt.doubleToString(Nill) shouldBe ""
+  }
+
+  it should "return a string of a lizt of doubles" in {
+    Lizt.doubleToString(Lizt(1.2,5.3,9.9)) shouldBe "1.25.39.9"
+  }
 }

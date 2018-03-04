@@ -85,4 +85,9 @@ object Lizt { // `List` companion object. Contains functions for creating and wo
   }
 
   def appendList[T](xs: Lizt[T], ys: Lizt[T]): Lizt[T] = foldRight(xs, ys)(Cons(_, _))
+
+  def addOne(xs: Lizt[Int]): Lizt[Int] =
+    foldRight(xs, Nill: Lizt[Int])((x, acc) => Cons(x + 1, acc))
+
+  def doubleToString(xs: Lizt[Double]): String = foldRight(xs, "")(_.toString + _)
 }
