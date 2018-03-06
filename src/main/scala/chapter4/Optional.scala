@@ -6,13 +6,25 @@ sealed trait Optional[+A] {
     case _ => None
   }
 
-  def getOrElse[B>:A](default: => B): B = ???
+  def getOrElse[B>:A](default: => B): B = this match {
+    case Some(v) => v
+    case _ => default
+  }
 
-  def flatMap[B](f: A => Optional[B]): Optional[B] = ???
+  def flatMap[B](f: A => Optional[B]): Optional[B] = this match {
+    case Some(v) => f(v)
+    case _ => None
+  }
 
-  def orElse[B>:A](ob: => Optional[B]): Optional[B] = ???
+  def orElse[B>:A](ob: => Optional[B]): Optional[B] = this match {
+    case Some(_) => this
+    case _ => ob
+  }
 
-  def filter(f: A => Boolean): Optional[A] = ???
+  def filter(f: A => Boolean): Optional[A] = this match {
+    case Some(v) if f(v) => this
+    case _ => None
+  }
 }
 case class Some[+A](get: A) extends Optional[A]
 case object None extends Optional[Nothing]
@@ -38,6 +50,7 @@ object Optional {
   def mean(xs: Seq[Double]): Optional[Double] =
     if (xs.isEmpty) None
     else Some(xs.sum / xs.length)
+
   def variance(xs: Seq[Double]): Optional[Double] = ???
 
   def map2[A,B,C](a: Optional[A], b: Optional[B])(f: (A, B) => C): Optional[C] = ???
