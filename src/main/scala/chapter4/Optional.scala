@@ -51,11 +51,27 @@ object Optional {
     if (xs.isEmpty) None
     else Some(xs.sum / xs.length)
 
-  def variance(xs: Seq[Double]): Optional[Double] = ???
+  def variance(xs: Seq[Double]): Optional[Double] = mean(xs).flatMap(m => mean(xs.map(x => math.pow(x - m, 2))))
 
-  def map2[A,B,C](a: Optional[A], b: Optional[B])(f: (A, B) => C): Optional[C] = ???
+  def map2[A,B,C](a: Optional[A], b: Optional[B])(f: (A, B) => C): Optional[C] = a.flatMap(aa => b.map(bb => f(aa, bb)))
 
-  def sequence[A](a: List[Optional[A]]): Optional[List[A]] = ???
+  def map2_2[A,B,C](a: Optional[A], b: Optional[B])(f: (A, B) => C): Optional[C] = (a, b) match {
+    case (Some(v1), Some(v2)) => Some(f(v1, v2))
+    case (None, _) => None
+    case (_, None) => None
+  }
 
-  def traverse[A, B](a: List[A])(f: A => Optional[B]): Optional[List[B]] = ???
+  def traverse[A, B](as: List[A])(f: A => Optional[B]): Optional[List[B]] = as match {
+    case Nil => Some(Nil)
+    case h :: t => traverse(t)(f).flatMap(list => f(h).map(_ :: list))
+  }
+
+  def sequence[A](as: List[Optional[A]]): Optional[List[A]] = traverse(as)(identity)
+
+  def sequence2[A](as: List[Optional[A]]): Optional[List[A]] = as match {
+    case Nil => Some(Nil)
+    case None :: _ => None
+    case Some(x) :: xs => sequence2(xs).map(x :: _)
+  }
+
 }
