@@ -31,9 +31,12 @@ case class Left[+E](get: E) extends Eider[E,Nothing]
 case class Right[+A](get: A) extends Eider[Nothing,A]
 
 object Eider {
-  def traverse[E,A,B](es: List[A])(f: A => Eider[E, B]): Eider[E, List[B]] = ???
+  def traverse[E,A,B](xs: List[A])(f: A => Eider[E, B]): Eider[E, List[B]] = xs match {
+    case Nil => Right(Nil)
+    case h :: t => f(h).flatMap(x => traverse(t)(f).map(x :: _))
+  }
 
-  def sequence[E,A](es: List[Eider[E,A]]): Eider[E,List[A]] = ???
+  def sequence[E,A](xs: List[Eider[E,A]]): Eider[E,List[A]] = traverse(xs)(identity)
 
   def mean(xs: IndexedSeq[Double]): Eider[String, Double] =
     if (xs.isEmpty)

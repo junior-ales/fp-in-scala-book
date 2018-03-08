@@ -57,4 +57,35 @@ class EiderTest extends FlatSpec with Matchers {
     Right(41).map2(Right(1))(_ + _) shouldBe Right(41).map2_2(Right(1))(_ + _)
   }
 
+  "traverse" should "return Right when list is empty" in {
+    Eider.traverse(List.empty[Int])(_ => Left(0)) shouldBe Right(Nil)
+  }
+
+  it should "return the Left when predicate results in one Left in the list" in {
+    Eider.traverse(List(0,1,2))(x => if (x > 1) Left(x) else Right(x)) shouldBe Left(2)
+  }
+
+  it should "return the first Left when predicate results in more than one Left" in {
+    Eider.traverse(List(1,2))(x => Left(x.toString)) shouldBe Left("1")
+  }
+
+  it should "return Right List when predicate results are all Right" in {
+    Eider.traverse(List(1,2))(x => Right(x.toString)) shouldBe Right(List("1", "2"))
+  }
+
+  "sequence" should "return Right when list is empty" in {
+    Eider.sequence(Nil) shouldBe Right(Nil)
+  }
+
+  it should "return Left when list contains one Left" in {
+    Eider.sequence(List(Right(10), Right(3), Left('h'))) shouldBe Left('h')
+  }
+
+  it should "return the first Left when list contains more than one Left" in {
+    Eider.sequence(List(Right(10), Left('b'), Right(3), Left('h'))) shouldBe Left('b')
+  }
+
+  it should "return Right List when list contains all Right" in {
+    Eider.sequence(List(Right(10), Right(3))) shouldBe Right(List(10, 3))
+  }
 }
