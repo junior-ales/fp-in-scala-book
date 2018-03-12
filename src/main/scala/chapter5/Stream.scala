@@ -2,6 +2,8 @@ package chapter5
 
 trait Stream[+A] {
 
+  import chapter5.Stream.cons
+
   def foldRight[B](z: => B)(f: (A, => B) => B): B = // The arrow `=>` in front of the argument type `B` means that the function `f` takes its second argument by name and may choose not to evaluate it.
     this match {
       case Cons(h,t) => f(h(), t().foldRight(z)(f)) // If `f` doesn't evaluate its second argument, the recursion never occurs.
@@ -23,7 +25,7 @@ trait Stream[+A] {
   }
 
   def take(n: Int): Stream[A] = this match {
-    case Cons(h, t) if n > 0 => Cons(h, () =>  t().take(n - 1))
+    case Cons(h, t) if n > 0 => cons(h(), t().take(n - 1))
     case _ => Empty
   }
 
@@ -32,11 +34,30 @@ trait Stream[+A] {
     case _ => Empty
   }
 
-  def takeWhile(p: A => Boolean): Stream[A] = ???
+  def takeWhile(p: A => Boolean): Stream[A] = this match {
+    case Cons(h, t) if p(h()) => cons(h(), t().takeWhile(p))
+    case _ => Empty
+  }
 
-  def forAll(p: A => Boolean): Boolean = ???
+  def forAll(p: A => Boolean): Boolean = foldRight(true)((x, acc) => p(x) && acc)
 
-  def headOption: Option[A] = ???
+  def takeWhile2(p: A => Boolean): Stream[A] =
+    foldRight(Empty: Stream[A])((a, acc) => if(p(a)) cons(a, acc.takeWhile2(p)) else Empty)
+
+  def headOption: Option[A] = this match {
+    case Cons(h, _) => Some(h())
+    case _ => None
+  }
+
+  def headOption2: Option[A] = foldRight(None: Option[A])((a, _) => Some(a))
+
+  def map[B](fn: A => B): Stream[B] = foldRight(Empty: Stream[B])((a, acc) => cons(fn(a), acc))
+
+  def map2[B](fn: A => B): Stream[B] = this match {
+    // case Cons(h, t) => Cons(() => fn(h()), () => t().map2(fn))
+    case Cons(h, t) => cons(fn(h()), t().map2(fn))
+    case _ => Empty
+  }
 
   // 5.7 map, filter, append, flatmap using foldRight. Part of the exercise is
   // writing your own function signatures.
@@ -59,7 +80,7 @@ object Stream {
     if (as.isEmpty) empty
     else cons(as.head, apply(as.tail: _*))
 
-  val ones: Stream[Int] = Stream.cons(1, ones)
+  val ones: Stream[Int] = cons(1, ones)
 
   def from(n: Int): Stream[Int] = ???
 
