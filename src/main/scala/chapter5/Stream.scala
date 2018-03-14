@@ -6,7 +6,7 @@ trait Stream[+A] {
 
   def foldRight[B](z: => B)(f: (A, => B) => B): B = // The arrow `=>` in front of the argument type `B` means that the function `f` takes its second argument by name and may choose not to evaluate it.
     this match {
-      case Cons(h,t) => f(h(), t().foldRight(z)(f)) // If `f` doesn't evaluate its second argument, the recursion never occurs.
+      case Cons(h, t) => f(h(), t().foldRight(z)(f)) // If `f` doesn't evaluate its second argument, the recursion never occurs.
       case _ => z
     }
 
@@ -42,7 +42,7 @@ trait Stream[+A] {
   def forAll(p: A => Boolean): Boolean = foldRight(true)((x, acc) => p(x) && acc)
 
   def takeWhile2(p: A => Boolean): Stream[A] =
-    foldRight(Empty: Stream[A])((a, acc) => if(p(a)) cons(a, acc.takeWhile2(p)) else Empty)
+    foldRight(Empty: Stream[A])((a, acc) => if (p(a)) cons(a, acc) else Empty)
 
   def headOption: Option[A] = this match {
     case Cons(h, _) => Some(h())
@@ -59,12 +59,35 @@ trait Stream[+A] {
     case _ => Empty
   }
 
+  def filter(fn: A => Boolean): Stream[A] =
+    foldRight(Empty: Stream[A])((a, acc) => if (fn(a)) cons(a, acc.filter(fn)) else acc.filter(fn))
+
+  def filter2(fn: A => Boolean): Stream[A] = this match {
+    case Cons(h, t) => if (fn(h())) cons(h(), t().filter2(fn)) else t().filter2(fn)
+    case _ => Empty
+  }
+
+  def append[T >: A](x: T): Stream[T] = this match {
+    case Empty => cons(x, Empty)
+    case Cons(h, t) => cons(h(), t().append(x))
+  }
+
+  def flatMap[T](fn: A => Stream[T]): Stream[T] = this match {
+    case Cons(h, t) => fn(h()) match {
+      case Cons(h2, _) => Cons(h2, () => t().flatMap(fn))
+      case _ => Empty
+    }
+    case _ => Empty
+  }
+
   // 5.7 map, filter, append, flatmap using foldRight. Part of the exercise is
   // writing your own function signatures.
 
   def startsWith[B](s: Stream[B]): Boolean = ???
 }
+
 case object Empty extends Stream[Nothing]
+
 case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A]
 
 object Stream {
