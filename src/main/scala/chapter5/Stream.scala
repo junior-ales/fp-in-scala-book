@@ -60,28 +60,25 @@ trait Stream[+A] {
   }
 
   def filter(fn: A => Boolean): Stream[A] =
-    foldRight(Empty: Stream[A])((a, acc) => if (fn(a)) cons(a, acc.filter(fn)) else acc.filter(fn))
+    foldRight(Empty: Stream[A])((a, acc) => if (fn(a)) cons(a, acc) else acc)
 
   def filter2(fn: A => Boolean): Stream[A] = this match {
     case Cons(h, t) => if (fn(h())) cons(h(), t().filter2(fn)) else t().filter2(fn)
     case _ => Empty
   }
 
-  def append[T >: A](x: T): Stream[T] = this match {
-    case Empty => cons(x, Empty)
-    case Cons(h, t) => cons(h(), t().append(x))
-  }
+  def append[T >: A](x: => Stream[T]): Stream[T] = foldRight(x)((a, b) => cons(a, b))
 
-  def flatMap[T](fn: A => Stream[T]): Stream[T] = this match {
+  def flatMap[T](fn: A => Stream[T]): Stream[T] =
+    foldRight(Stream.empty[T])((a, acc) => fn(a) append acc)
+
+  def flatMap2[T](fn: A => Stream[T]): Stream[T] = this match {
     case Cons(h, t) => fn(h()) match {
       case Cons(h2, _) => Cons(h2, () => t().flatMap(fn))
       case _ => Empty
     }
     case _ => Empty
   }
-
-  // 5.7 map, filter, append, flatmap using foldRight. Part of the exercise is
-  // writing your own function signatures.
 
   def startsWith[B](s: Stream[B]): Boolean = ???
 }

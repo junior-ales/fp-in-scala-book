@@ -126,14 +126,18 @@ class StreamTest extends FlatSpec with Matchers {
   }
 
   "append" should "append a elem in the end of a stream" in {
-    Stream().append(5).toList shouldBe List(5)
-    Stream(5).append("bla").toList shouldBe List(5, "bla")
-    Stream("foo", "bar", "baz").append("eita").toList shouldBe List("foo", "bar", "baz", "eita")
+    Stream.empty[Int].append(Stream(4)).toList shouldBe List(4)
+    Stream(5).append(Stream("bla")).toList shouldBe List(5, "bla")
+    Stream("foo", "bar", "baz").append(Stream("eita")).toList shouldBe List("foo", "bar", "baz", "eita")
   }
 
   "flatMap" should "map and flatten over a function" in {
     Stream().flatMap(_ => Stream(5)) shouldBe Empty
     Stream(5).flatMap(Stream(_)).toList shouldBe List(5)
     Stream(5, 8).flatMap(x => if (x == 5) Stream(x) else Empty).toList shouldBe List(5)
+
+    Stream().flatMap(_ => Stream(5)) shouldBe Stream().flatMap2(_ => Stream(5))
+    Stream(5).flatMap(Stream(_)).toList shouldBe Stream(5).flatMap2(Stream(_)).toList
+    Stream(5, 8).flatMap(x => if (x == 5) Stream(x) else Empty).toList shouldBe Stream(5, 8).flatMap2(x => if (x == 5) Stream(x) else Empty).toList
   }
 }
