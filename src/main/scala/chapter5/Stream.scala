@@ -100,9 +100,23 @@ object Stream {
     if (as.isEmpty) empty
     else cons(as.head, apply(as.tail: _*))
 
+  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = f(z) match {
+    case Some((v, s)) => cons(v, unfold(s)(f))
+    case _ => Empty
+  }
+
   val ones: Stream[Int] = cons(1, ones)
 
-  def from(n: Int): Stream[Int] = ???
+  val ones2: Stream[Int] = unfold(1)(_ => Some((1, 1)))
 
-  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = ???
+  def constant[A](a: A): Stream[A] = cons(a, constant(a))
+
+  def from(n: Int): Stream[Int] = cons(n, from(n + 1))
+
+  def from2(n: Int): Stream[Int] = unfold(n)(s => Some((s, s + 1)))
+
+  private def innerFibs(x: Int, y: Int): Stream[Int] = cons(x, innerFibs(y, x + y))
+
+  def fibs(): Stream[Int] = innerFibs(0, 1)
+
 }

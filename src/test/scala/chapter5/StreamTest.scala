@@ -140,4 +140,62 @@ class StreamTest extends FlatSpec with Matchers {
     Stream(5).flatMap(Stream(_)).toList shouldBe Stream(5).flatMap2(Stream(_)).toList
     Stream(5, 8).flatMap(x => if (x == 5) Stream(x) else Empty).toList shouldBe Stream(5, 8).flatMap2(x => if (x == 5) Stream(x) else Empty).toList
   }
+
+  "constant" should "return infinite stream of a value" in {
+    Stream.constant(5).take(0).toList shouldBe Nil
+    Stream.constant(5).take(13).toList shouldBe List(5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5)
+  }
+
+  "from" should "return infinite stream of int starting at a given value" in {
+    Stream.from(3).take(0).toList shouldBe Nil
+    Stream.from(3).take(10).toList shouldBe List(3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
+  }
+
+  it should "behave like from2" in {
+    Stream.from(3).take(0).toList shouldBe Stream.from2(3).take(0).toList
+    Stream.from(3).take(10).toList shouldBe Stream.from2(3).take(10).toList
+  }
+
+  "fibs" should "return an empty stream when predicate finishes at first loop" in {
+    Stream.fibs().take(0).toList shouldBe Nil
+  }
+
+  it should "return the first elem of fibonacci's sequence" in {
+    Stream.fibs().take(1).toList shouldBe List(0)
+  }
+
+  it should "return the first two elems of fibonacci's sequence" in {
+    Stream.fibs().take(2).toList shouldBe List(0, 1)
+  }
+
+  it should "return the first three elems of fibonacci's sequence" in {
+    Stream.fibs().take(3).toList shouldBe List(0, 1, 1)
+  }
+
+  it should "return several elems of fibonacci's sequence" in {
+    Stream.fibs().take(16).toList shouldBe List(0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610)
+  }
+
+  "unfold" should "produce an infinity sequence of numbers" in {
+    Stream.unfold(List(1))(l => Some((l.head, l.head + 1 :: l))).take(4).toList shouldBe List(1, 2, 3, 4)
+  }
+
+  it should "produce a sequence of numbers up to 4" in {
+    val stream = Stream.unfold(List(1))(l =>
+      if (l.head > 4) None
+      else Some((l.head, l.head + 1 :: l))
+    )
+
+    stream.take(50).toList shouldBe List(1, 2, 3, 4)
+  }
+
+  "ones" should "produce an infinite sequence of number 1" in {
+    Stream.ones.take(3).toList shouldBe List(1, 1, 1)
+    Stream.ones.take(0).toList shouldBe Nil
+  }
+
+  it should "behave the same way as ones2" in {
+    Stream.ones.take(3).toList shouldBe Stream.ones2.take(3).toList
+    Stream.ones.take(0).toList shouldBe Stream.ones2.take(0).toList
+  }
 }
