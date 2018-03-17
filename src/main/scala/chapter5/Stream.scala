@@ -111,6 +111,8 @@ object Stream {
 
   def constant[A](a: A): Stream[A] = cons(a, constant(a))
 
+  def constant2[A](a: A): Stream[A] = unfold(a)(_ => Some((a, a)))
+
   def from(n: Int): Stream[Int] = cons(n, from(n + 1))
 
   def from2(n: Int): Stream[Int] = unfold(n)(s => Some((s, s + 1)))
@@ -118,5 +120,7 @@ object Stream {
   private def innerFibs(x: Int, y: Int): Stream[Int] = cons(x, innerFibs(y, x + y))
 
   def fibs(): Stream[Int] = innerFibs(0, 1)
+
+  def fibs2(): Stream[Int] = unfold((0, 1))(s => Some((s._1, (s._2, s._1 + s._2))))
 
 }

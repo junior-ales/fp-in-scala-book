@@ -146,6 +146,11 @@ class StreamTest extends FlatSpec with Matchers {
     Stream.constant(5).take(13).toList shouldBe List(5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5)
   }
 
+  it should "behave like constant2" in {
+    Stream.constant(5).take(0).toList shouldBe Stream.constant2(5).take(0).toList
+    Stream.constant(5).take(13).toList shouldBe Stream.constant2(5).take(13).toList
+  }
+
   "from" should "return infinite stream of int starting at a given value" in {
     Stream.from(3).take(0).toList shouldBe Nil
     Stream.from(3).take(10).toList shouldBe List(3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
@@ -176,14 +181,22 @@ class StreamTest extends FlatSpec with Matchers {
     Stream.fibs().take(16).toList shouldBe List(0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610)
   }
 
+  it should "behave like fibs2" in {
+    Stream.fibs().take(0).toList shouldBe Stream.fibs2().take(0).toList
+    Stream.fibs().take(1).toList shouldBe Stream.fibs2().take(1).toList
+    Stream.fibs().take(2).toList shouldBe Stream.fibs2().take(2).toList
+    Stream.fibs().take(3).toList shouldBe Stream.fibs2().take(3).toList
+    Stream.fibs().take(16).toList shouldBe Stream.fibs2().take(16).toList
+  }
+
   "unfold" should "produce an infinity sequence of numbers" in {
-    Stream.unfold(List(1))(l => Some((l.head, l.head + 1 :: l))).take(4).toList shouldBe List(1, 2, 3, 4)
+    Stream.unfold(1)(n => Some((n, n + 1))).take(4).toList shouldBe List(1, 2, 3, 4)
   }
 
   it should "produce a sequence of numbers up to 4" in {
-    val stream = Stream.unfold(List(1))(l =>
-      if (l.head > 4) None
-      else Some((l.head, l.head + 1 :: l))
+    val stream = Stream.unfold(1)(n =>
+      if (n > 4) None
+      else Some((n, n + 1))
     )
 
     stream.take(50).toList shouldBe List(1, 2, 3, 4)
