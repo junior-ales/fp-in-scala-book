@@ -32,6 +32,14 @@ class StreamTest extends FlatSpec with Matchers {
     Stream(1, 2, 4).take(3).toList shouldBe Stream(1, 2, 4).toList
   }
 
+  it should "behave like takeViaUnfold" in {
+    Stream().take(8).toList shouldBe Stream().takeViaUnfold(8).toList
+    Stream(1, 2, 4).take(1).toList shouldBe Stream(1, 2, 4).takeViaUnfold(1).toList
+    Stream(1, 2, 4).take(2).toList shouldBe Stream(1, 2, 4).takeViaUnfold(2).toList
+    Stream(1, 2, 4).take(3).toList shouldBe Stream(1, 2, 4).takeViaUnfold(3).toList
+    Stream(1, 2, 4).take(0).toList shouldBe Stream(1, 2, 4).takeViaUnfold(0).toList
+  }
+
   "drop" should "drop no element from stream" in {
     Stream('q', 'g', 'h').drop(0).toList shouldBe List('q', 'g', 'h')
   }
@@ -78,6 +86,14 @@ class StreamTest extends FlatSpec with Matchers {
     Stream(1, 2, 4).takeWhile(_ < 3).toList shouldBe Stream(1, 2, 4).takeWhile2(_ < 3).toList
     Stream(1, 2, 4).takeWhile(_ < 5).toList shouldBe Stream(1, 2, 4).takeWhile2(_ < 5).toList
     Stream(1, 2, 4).takeWhile(_ < 2).toList shouldBe Stream(1, 2, 4).takeWhile2(_ < 2).toList
+  }
+
+  it should "behave the same way as takeWhileViaUnfold" in {
+    Stream().takeWhile(_ => true).toList shouldBe Stream().takeWhileViaUnfold(_ => true).toList
+    Stream(1, 2, 4).takeWhile(_ => false).toList shouldBe Stream(1, 2, 4).takeWhileViaUnfold(_ => false).toList
+    Stream(1, 2, 4).takeWhile(_ < 3).toList shouldBe Stream(1, 2, 4).takeWhileViaUnfold(_ < 3).toList
+    Stream(1, 2, 4).takeWhile(_ < 5).toList shouldBe Stream(1, 2, 4).takeWhileViaUnfold(_ < 5).toList
+    Stream(1, 2, 4).takeWhile(_ < 2).toList shouldBe Stream(1, 2, 4).takeWhileViaUnfold(_ < 2).toList
   }
 
   "forAll" should "return true when stream is empty" in {
@@ -210,5 +226,17 @@ class StreamTest extends FlatSpec with Matchers {
   it should "behave the same way as ones2" in {
     Stream.ones.take(3).toList shouldBe Stream.ones2.take(3).toList
     Stream.ones.take(0).toList shouldBe Stream.ones2.take(0).toList
+  }
+
+  "zipWith" should "merge streams" in {
+    Stream.empty[Int].zipWith(Stream(5, 6, 7))(_ + _).toList shouldBe Nil
+    Stream(5, 6, 7).zipWith(Stream.empty[Int])(_ + _).toList shouldBe Nil
+    Stream(1, 2).zipWith(Stream(5, 5))(_ + _).toList shouldBe List(6, 7)
+    Stream(10, 11, 12).zipWith(Stream.ones)(_ + _).toList shouldBe List(11, 12, 13)
+    Stream.ones.zipWith(Stream(10, 11, 12))(_ + _).toList shouldBe List(11, 12, 13)
+  }
+
+  "zipAll" should "merge stream until either are exhausted" in {
+    Stream.empty[Int].zipAll(Stream.empty[Int]).take(10).toList shouldBe Nil
   }
 }
