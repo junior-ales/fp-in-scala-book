@@ -238,5 +238,21 @@ class StreamTest extends FlatSpec with Matchers {
 
   "zipAll" should "merge stream until either are exhausted" in {
     Stream.empty[Int].zipAll(Stream.empty[Int]).take(10).toList shouldBe Nil
+    Stream.empty[Int].zipAll(Stream.ones).take(3).toList shouldBe List((None, Some(1)), (None, Some(1)), (None, Some(1)))
+    Stream.ones.zipAll(Stream.empty[Int]).take(3).toList shouldBe List((Some(1), None), (Some(1), None), (Some(1), None))
+
+    Stream(8, 2).zipAll(Stream(7, 9)).toList shouldBe List((Some(8), Some(7)), (Some(2), Some(9)))
+    Stream(8, 2).zipAll(Stream(7, 9)).take(10).toList shouldBe List((Some(8), Some(7)), (Some(2), Some(9)))
+
+    Stream(8, 2, 6).zipAll(Stream.ones).take(4).toList shouldBe List((Some(8), Some(1)), (Some(2), Some(1)), (Some(6), Some(1)), (None, Some(1)))
+  }
+
+  "startsWith" should "tell when a stream is a prefix of another stream" in {
+    Stream.empty[Int].startsWith(Stream.empty[Int]) shouldBe false
+    Stream(20).startsWith(Stream.empty[Int]) shouldBe false
+    Stream.empty[Int].startsWith(Stream("batman")) shouldBe false
+
+    Stream(1, 2, 3) startsWith Stream(1, 2) shouldBe true
+    Stream("eita") startsWith Stream("eita") shouldBe true
   }
 }

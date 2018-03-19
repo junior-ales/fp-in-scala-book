@@ -100,10 +100,15 @@ trait Stream[+A] {
   def zipAll[B](s: Stream[B]): Stream[(Option[A], Option[B])] =
     Stream.unfold((this, s)) {
       case (Empty, Empty) => None
-      case _ => ???
+      case (Empty, Cons(h, t)) => Some((None, Some(h())), (Stream.empty[A], t()))
+      case (Cons(h, t), Empty) => Some((Some(h()), None), (t(), Stream.empty[B]))
+      case (Cons(h1, t1), Cons(h2, t2)) => Some((Some(h1()), Some(h2())), (t1(), t2()))
     }
 
-  def startsWith[B](s: Stream[B]): Boolean = ???
+  def startsWith[B](s: Stream[B]): Boolean = zipWith(s)(_ == _) match {
+    case Empty => false
+    case xs => xs.forAll(identity)
+  }
 }
 
 case object Empty extends Stream[Nothing]
