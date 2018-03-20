@@ -109,6 +109,20 @@ trait Stream[+A] {
     case Empty => false
     case xs => xs.forAll(identity)
   }
+
+  def tails: Stream[Stream[A]] =
+    Stream.unfold(this) {
+      case Cons(h, t) => Some((cons(h(), t()), t()))
+      case _ => None
+    } append Stream(Stream.empty)
+
+  def hasSubsequence[T](s: Stream[T]): Boolean =
+    tails exists (_ startsWith s)
+
+  def scanRight[B >: A](z: B)(fn: (A, => B) => B): Stream[B] = this match {
+    case Empty => Stream(z)
+    case _ => ???
+  }
 }
 
 case object Empty extends Stream[Nothing]

@@ -255,4 +255,14 @@ class StreamTest extends FlatSpec with Matchers {
     Stream(1, 2, 3) startsWith Stream(1, 2) shouldBe true
     Stream("eita") startsWith Stream("eita") shouldBe true
   }
+
+  "tails" should "return the stream of suffixes of the input sequence" in {
+    Stream().tails.map(_.toList).toList shouldBe List(Nil)
+    Stream(1, 2, 3).tails.map(_.toList).toList shouldBe List(List(1, 2, 3), List(2, 3), List(3), List())
+  }
+
+  "scanRight" should "return a stream of intermediate results" in {
+    Stream.empty[Int].scanRight(0)(_ + _).toList shouldBe List(0)
+    // Stream(1, 2, 3).scanRight(0)(_ + _).toList shouldBe List(6, 5, 3, 0)
+  }
 }
