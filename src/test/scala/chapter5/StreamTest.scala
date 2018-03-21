@@ -129,6 +129,11 @@ class StreamTest extends FlatSpec with Matchers {
     Stream("foo", "bar").map(_.toUpperCase).toList shouldBe Stream("foo", "bar").map2(_.toUpperCase).toList
   }
 
+  "mapViaUnfold" should "map over fns" in {
+    Stream().mapViaUnfold(_ => false) shouldBe Empty
+    Stream("foo", "bar").mapViaUnfold(_.toUpperCase).toList shouldBe List("FOO", "BAR")
+  }
+
   "filter" should "filter depending on predicate result" in {
     Stream().filter(_ => true) shouldBe Empty
     Stream(1, 2, 3).filter(_ == 2).toList shouldBe List(2)

@@ -70,6 +70,9 @@ trait Stream[+A] {
     case _ => Empty
   }
 
+  def mapViaUnfold[B](fn: A => B): Stream[B] =
+    Stream.unfold(this)(s => s.headOption.map(fn).map(b => (b, s.drop(1))))
+
   def filter(fn: A => Boolean): Stream[A] =
     foldRight(Empty: Stream[A])((a, acc) => if (fn(a)) cons(a, acc) else acc)
 
