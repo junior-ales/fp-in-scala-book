@@ -268,6 +268,6 @@ class StreamTest extends FlatSpec with Matchers {
 
   "scanRight" should "return a stream of intermediate results" in {
     Stream.empty[Int].scanRight(0)(_ + _).toList shouldBe List(0)
-    // Stream(1, 2, 3).scanRight(0)(_ + _).toList shouldBe List(6, 5, 3, 0)
+    Stream(1, 2, 3).scanRight(0)(_ + _).toList shouldBe List(6, 5, 3, 0)
   }
 }

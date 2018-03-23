@@ -4,14 +4,17 @@ trait Stream[+A] {
 
   import chapter5.Stream.cons
 
-  def foldRight[B](z: => B)(f: (A, => B) => B): B = // The arrow `=>` in front of the argument type `B` means that the function `f` takes its second argument by name and may choose not to evaluate it.
+  // The arrow `=>` in front of the argument type `B` means that the function `f` takesits second argument by name and may choose not to evaluate it.
+  def foldRight[B](z: => B)(f: (A, => B) => B): B =
     this match {
       case Cons(h, t) => f(h(), t().foldRight(z)(f)) // If `f` doesn't evaluate its second argument, the recursion never occurs.
       case _ => z
     }
 
+  // Here `b` is the unevaluated recursive step that folds the tail of the stream.
+  // If `p(a)` returns `true`, `b` will never be evaluated and the computation terminates early.
   def exists(p: A => Boolean): Boolean =
-    foldRight(false)((a, b) => p(a) || b) // Here `b` is the unevaluated recursive step that folds the tail of the stream. If `p(a)` returns `true`, `b` will never be evaluated and the computation terminates early.
+    foldRight(false)((a, b) => p(a) || b)
 
   @annotation.tailrec
   final def find(f: A => Boolean): Option[A] = this match {
@@ -110,7 +113,7 @@ trait Stream[+A] {
 
   def startsWith[B](s: Stream[B]): Boolean = zipWith(s)(_ == _) match {
     case Empty => false
-    case xs => xs.forAll(identity)
+    case xs@(_) => xs.forAll(identity)
   }
 
   def tails: Stream[Stream[A]] =
@@ -122,10 +125,11 @@ trait Stream[+A] {
   def hasSubsequence[T](s: Stream[T]): Boolean =
     tails exists (_ startsWith s)
 
-  def scanRight[B >: A](z: B)(fn: (A, => B) => B): Stream[B] = this match {
-    case Empty => Stream(z)
-    case _ => ???
-  }
+  def scanRight[B >: A](z: B)(fn: (A, => B) => B): Stream[B] = Stream.unfold(this) {
+    case s@(Cons(_, t)) => Some((s.foldRight(z)(fn), t()))
+    case _ => None
+  } append Stream(z)
+
 }
 
 case object Empty extends Stream[Nothing]
