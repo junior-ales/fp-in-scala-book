@@ -36,7 +36,12 @@ object Optional {
   //     val x = 42 + 5
   //     x + y
   //   }
-  //   catch { case e: Exception => 43 } // A `catch` block is just a pattern matching block like the ones we've seen. `case e: Exception` is a pattern that matches any `Exception`, and it binds this value to the identifier `e`. The match returns the value 43.
+  //
+  //   A `catch` block is just a pattern matching block like the ones we've seen.
+  //   `case e: Exception` is a pattern that matches any `Exception`, and it binds
+  //   this value to the identifier `e`. The match returns the value 43.
+  //
+  //   catch { case e: Exception => 43 }
   // }
 
   // def failingFn2(i: Int): Int = {
@@ -55,7 +60,7 @@ object Optional {
 
   def map2[A,B,C](a: Optional[A], b: Optional[B])(f: (A, B) => C): Optional[C] = a.flatMap(aa => b.map(bb => f(aa, bb)))
 
-  def map2_2[A,B,C](a: Optional[A], b: Optional[B])(f: (A, B) => C): Optional[C] = (a, b) match {
+  def map2PatternMatching[A,B,C](a: Optional[A], b: Optional[B])(f: (A, B) => C): Optional[C] = (a, b) match {
     case (Some(v1), Some(v2)) => Some(f(v1, v2))
     case (None, _) => None
     case (_, None) => None
