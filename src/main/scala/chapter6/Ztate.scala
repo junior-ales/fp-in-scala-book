@@ -44,15 +44,44 @@ object RNG {
     (if (i < 0) -(i + 1) else i, r)
   }
 
-  def double(rng: RNG): (Double, RNG) = ???
+  def double(rng: RNG): (Double, RNG) = {
+    val (i, r) = nonNegativeInt(rng)
+    (i / (Int.MaxValue.toDouble + 1), r)
+  }
 
-  def intDouble(rng: RNG): ((Int, Double), RNG) = ???
+  def intDouble(rng: RNG): ((Int, Double), RNG) = {
+    val (i, r1) = rng.nextInt
+    val (d, r2) = double(r1)
 
-  def doubleInt(rng: RNG): ((Double, Int), RNG) = ???
+    ((i, d), r2)
+  }
 
-  def double3(rng: RNG): ((Double, Double, Double), RNG) = ???
+  def doubleInt(rng: RNG): ((Double, Int), RNG) = {
+    val (tp, r) = intDouble(rng)
 
-  def ints(count: Int)(rng: RNG): (List[Int], RNG) = ???
+    (tp.swap, r)
+  }
+
+  def double3(rng: RNG): ((Double, Double, Double), RNG) = {
+    val (d1, r1) = double(rng)
+    val (d2, r2) = double(r1)
+    val (d3, r3) = double(r2)
+
+    ((d1, d2, d3), r3)
+  }
+
+  def ints(count: Int)(rng: RNG): (List[Int], RNG) = {
+
+    @tailrec
+    def innerInts(c1: Int, r1: RNG, acc: List[Int]): (List[Int], RNG) = c1 match {
+      case c if c < 1 => (acc, r1)
+      case _ =>
+        val (i, r2) = r1.nextInt
+        innerInts(c1 - 1, r2, i :: acc)
+    }
+
+    innerInts(count, rng, Nil)
+  }
 
   def map2[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] = ???
 

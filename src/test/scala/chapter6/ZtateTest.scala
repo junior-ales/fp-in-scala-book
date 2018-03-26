@@ -39,4 +39,29 @@ class ZtateTest extends FlatSpec with Matchers {
     nonNegativeIntFromBook(MockSimpleAlwaysReturnMinValue)._1 shouldNot be(-2147483648)
   }
 
+  "double" should "generate a double between 0 and 1, not including 1" in {
+    double(Simple(13))._1 > 0 shouldBe true
+    double(Simple(13))._1 < 1 shouldBe true
+  }
+
+  "intDouble" should "generate a tuple Int Double" in {
+    intDouble(Simple(8))._1 shouldBe ((3077991, 0.3025446915999055))
+  }
+
+  "doubleInt" should "generate a tuple Double Int" in {
+    doubleInt(Simple(8))._1 shouldBe ((0.3025446915999055, 3077991))
+  }
+
+  "double3" should "generate a 3-tuple Double Double Double" in {
+    double3(Simple(432))._1 shouldBe ((0.0773982722312212, 0.4418651764281094, 0.4030963806435466))
+  }
+
+  "ints" should "generate a list of random integers" in {
+    ints(4)(Simple(38))._1 shouldBe List(-1137957798, -1722522649, -954508689, 14620458)
+  }
+
+  it should "generate empty list when count is zero" in {
+    ints(0)(Simple(38))._1 shouldBe Nil
+  }
+
 }
