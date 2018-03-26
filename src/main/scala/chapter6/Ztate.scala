@@ -1,5 +1,7 @@
 package chapter6
 
+import scala.annotation.tailrec
+
 trait RNG {
   def nextInt: (Int, RNG) // Should generate a random `Int`. We'll later define other functions in terms of `nextInt`.
 }
@@ -30,7 +32,17 @@ object RNG {
       (f(a), rng2)
     }
 
-  def nonNegativeInt(rng: RNG): (Int, RNG) = ???
+  @tailrec
+  def nonNegativeInt(rng: RNG): (Int, RNG) = rng.nextInt match {
+    case (n, r) if n == Int.MinValue => nonNegativeInt(r)
+    case (n, r) if n < 0 => (n * -1, r)
+    case i@(_) => i
+  }
+
+  def nonNegativeIntFromBook(rng: RNG): (Int, RNG) = {
+    val (i, r) = rng.nextInt
+    (if (i < 0) -(i + 1) else i, r)
+  }
 
   def double(rng: RNG): (Double, RNG) = ???
 
