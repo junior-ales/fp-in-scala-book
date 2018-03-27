@@ -1,5 +1,7 @@
 package chapter6
 
+import chapter5.Ztream
+
 import scala.annotation.tailrec
 
 trait RNG {
@@ -82,6 +84,21 @@ object RNG {
 
     innerInts(count, rng, Nil)
   }
+
+  def intsViaUnfold(count: Int)(rng: RNG): (List[Int], RNG) =
+    Ztream.unfold(rng.nextInt)(s => Some((s, s._2.nextInt)))
+      .take(count)
+      .foldRight((List.empty[Int], rng))(
+        (t, acc) => (acc._1 ::: List(t._1), t._2)
+      )
+
+  def intsViaUnfoldFoldLeft(count: Int)(rng: RNG): (List[Int], RNG) =
+    Ztream.unfold(rng.nextInt)(s => Some((s, s._2.nextInt)))
+      .take(count)
+      .toList
+      .foldLeft((List.empty[Int], rng))(
+        (acc, t) => (t._1 :: acc._1, t._2)
+      )
 
   def map2[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] = ???
 

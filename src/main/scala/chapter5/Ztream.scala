@@ -1,8 +1,8 @@
 package chapter5
 
-trait Stream[+A] {
+trait Ztream[+A] {
 
-  import chapter5.Stream.cons
+  import chapter5.Ztream.cons
 
   // The arrow `=>` in front of the argument type `B` means that the function `f` takesits second argument by name and may choose not to evaluate it.
   def foldRight[B](z: => B)(f: (A, => B) => B): B =
@@ -27,31 +27,31 @@ trait Stream[+A] {
     case Cons(h, t) => h() :: t().toList
   }
 
-  def take(n: Int): Stream[A] = this match {
+  def take(n: Int): Ztream[A] = this match {
     case Cons(h, t) if n > 0 => cons(h(), t().take(n - 1))
     case _ => Empty
   }
 
-  def takeViaUnfold(n: Int): Stream[A] =
-    Stream.unfold((this, n)) {
+  def takeViaUnfold(n: Int): Ztream[A] =
+    Ztream.unfold((this, n)) {
       case (Cons(h, t), x) if x > 0 => Some((h(), (t(), x - 1)))
       case _ => None
     }
 
-  def drop(n: Int): Stream[A] = this match {
+  def drop(n: Int): Ztream[A] = this match {
     case Cons(_, t) => if (n > 0) t().drop(n - 1) else this
     case _ => Empty
   }
 
-  def takeWhile(p: A => Boolean): Stream[A] = this match {
+  def takeWhile(p: A => Boolean): Ztream[A] = this match {
     case Cons(h, t) if p(h()) => cons(h(), t().takeWhile(p))
     case _ => Empty
   }
 
-  def takeWhile2(p: A => Boolean): Stream[A] =
-    foldRight(Empty: Stream[A])((a, acc) => if (p(a)) cons(a, acc) else Empty)
+  def takeWhile2(p: A => Boolean): Ztream[A] =
+    foldRight(Empty: Ztream[A])((a, acc) => if (p(a)) cons(a, acc) else Empty)
 
-  def takeWhileViaUnfold(p: A => Boolean): Stream[A] = Stream.unfold(this) {
+  def takeWhileViaUnfold(p: A => Boolean): Ztream[A] = Ztream.unfold(this) {
     case Cons(h, t) if p(h()) => Some((h(), t()))
     case _ => None
   }
@@ -65,31 +65,31 @@ trait Stream[+A] {
 
   def headOption2: Option[A] = foldRight(None: Option[A])((a, _) => Some(a))
 
-  def map[B](fn: A => B): Stream[B] = foldRight(Empty: Stream[B])((a, acc) => cons(fn(a), acc))
+  def map[B](fn: A => B): Ztream[B] = foldRight(Empty: Ztream[B])((a, acc) => cons(fn(a), acc))
 
-  def map2[B](fn: A => B): Stream[B] = this match {
+  def map2[B](fn: A => B): Ztream[B] = this match {
     // case Cons(h, t) => Cons(() => fn(h()), () => t().map2(fn))
     case Cons(h, t) => cons(fn(h()), t().map2(fn))
     case _ => Empty
   }
 
-  def mapViaUnfold[B](fn: A => B): Stream[B] =
-    Stream.unfold(this)(s => s.headOption.map(fn).map(b => (b, s.drop(1))))
+  def mapViaUnfold[B](fn: A => B): Ztream[B] =
+    Ztream.unfold(this)(s => s.headOption.map(fn).map(b => (b, s.drop(1))))
 
-  def filter(fn: A => Boolean): Stream[A] =
-    foldRight(Empty: Stream[A])((a, acc) => if (fn(a)) cons(a, acc) else acc)
+  def filter(fn: A => Boolean): Ztream[A] =
+    foldRight(Empty: Ztream[A])((a, acc) => if (fn(a)) cons(a, acc) else acc)
 
-  def filter2(fn: A => Boolean): Stream[A] = this match {
+  def filter2(fn: A => Boolean): Ztream[A] = this match {
     case Cons(h, t) => if (fn(h())) cons(h(), t().filter2(fn)) else t().filter2(fn)
     case _ => Empty
   }
 
-  def append[T >: A](x: => Stream[T]): Stream[T] = foldRight(x)((a, b) => cons(a, b))
+  def append[T >: A](x: => Ztream[T]): Ztream[T] = foldRight(x)((a, b) => cons(a, b))
 
-  def flatMap[T](fn: A => Stream[T]): Stream[T] =
-    foldRight(Stream.empty[T])((a, acc) => fn(a) append acc)
+  def flatMap[T](fn: A => Ztream[T]): Ztream[T] =
+    foldRight(Ztream.empty[T])((a, acc) => fn(a) append acc)
 
-  def flatMap2[T](fn: A => Stream[T]): Stream[T] = this match {
+  def flatMap2[T](fn: A => Ztream[T]): Ztream[T] = this match {
     case Cons(h, t) => fn(h()) match {
       case Cons(h2, _) => Cons(h2, () => t().flatMap(fn))
       case _ => Empty
@@ -97,79 +97,79 @@ trait Stream[+A] {
     case _ => Empty
   }
 
-  def zipWith[B, C](s: Stream[B])(fn: (A, B) => C): Stream[C] =
-    Stream.unfold((this, s)) {
+  def zipWith[B, C](s: Ztream[B])(fn: (A, B) => C): Ztream[C] =
+    Ztream.unfold((this, s)) {
       case (Cons(h1, t1), Cons(h2, t2)) => Some((fn(h1(), h2()), (t1(), t2())))
       case _ => None
     }
 
-  def zipAll[B](s: Stream[B]): Stream[(Option[A], Option[B])] =
-    Stream.unfold((this, s)) {
+  def zipAll[B](s: Ztream[B]): Ztream[(Option[A], Option[B])] =
+    Ztream.unfold((this, s)) {
       case (Empty, Empty) => None
-      case (Empty, Cons(h, t)) => Some((None, Some(h())), (Stream.empty[A], t()))
-      case (Cons(h, t), Empty) => Some((Some(h()), None), (t(), Stream.empty[B]))
+      case (Empty, Cons(h, t)) => Some((None, Some(h())), (Ztream.empty[A], t()))
+      case (Cons(h, t), Empty) => Some((Some(h()), None), (t(), Ztream.empty[B]))
       case (Cons(h1, t1), Cons(h2, t2)) => Some((Some(h1()), Some(h2())), (t1(), t2()))
     }
 
-  def startsWith[B](s: Stream[B]): Boolean = zipWith(s)(_ == _) match {
+  def startsWith[B](s: Ztream[B]): Boolean = zipWith(s)(_ == _) match {
     case Empty => false
     case xs@(_) => xs.forAll(identity)
   }
 
-  def tails: Stream[Stream[A]] =
-    Stream.unfold(this) {
+  def tails: Ztream[Ztream[A]] =
+    Ztream.unfold(this) {
       case Cons(h, t) => Some((cons(h(), t()), t()))
       case _ => None
-    } append Stream(Stream.empty)
+    } append Ztream(Ztream.empty)
 
-  def hasSubsequence[T](s: Stream[T]): Boolean =
+  def hasSubsequence[T](s: Ztream[T]): Boolean =
     tails exists (_ startsWith s)
 
-  def scanRight[B >: A](z: B)(fn: (A, => B) => B): Stream[B] = Stream.unfold(this) {
+  def scanRight[B >: A](z: B)(fn: (A, => B) => B): Ztream[B] = Ztream.unfold(this) {
     case s@(Cons(_, t)) => Some((s.foldRight(z)(fn), t()))
     case _ => None
-  } append Stream(z)
+  } append Ztream(z)
 
 }
 
-case object Empty extends Stream[Nothing]
+case object Empty extends Ztream[Nothing]
 
-case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A]
+case class Cons[+A](h: () => A, t: () => Ztream[A]) extends Ztream[A]
 
-object Stream {
-  def cons[A](hd: => A, tl: => Stream[A]): Stream[A] = {
+object Ztream {
+  def cons[A](hd: => A, tl: => Ztream[A]): Ztream[A] = {
     lazy val head = hd
     lazy val tail = tl
     Cons(() => head, () => tail)
   }
 
-  def empty[A]: Stream[A] = Empty
+  def empty[A]: Ztream[A] = Empty
 
-  def apply[A](as: A*): Stream[A] =
+  def apply[A](as: A*): Ztream[A] =
     if (as.isEmpty) empty
     else cons(as.head, apply(as.tail: _*))
 
-  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = f(z) match {
+  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Ztream[A] = f(z) match {
     case Some((v, s)) => cons(v, unfold(s)(f))
     case _ => Empty
   }
 
-  val ones: Stream[Int] = cons(1, ones)
+  val ones: Ztream[Int] = cons(1, ones)
 
-  val ones2: Stream[Int] = unfold(1)(_ => Some((1, 1)))
+  val ones2: Ztream[Int] = unfold(1)(_ => Some((1, 1)))
 
-  def constant[A](a: A): Stream[A] = cons(a, constant(a))
+  def constant[A](a: A): Ztream[A] = cons(a, constant(a))
 
-  def constant2[A](a: A): Stream[A] = unfold(a)(_ => Some((a, a)))
+  def constant2[A](a: A): Ztream[A] = unfold(a)(_ => Some((a, a)))
 
-  def from(n: Int): Stream[Int] = cons(n, from(n + 1))
+  def from(n: Int): Ztream[Int] = cons(n, from(n + 1))
 
-  def from2(n: Int): Stream[Int] = unfold(n)(s => Some((s, s + 1)))
+  def from2(n: Int): Ztream[Int] = unfold(n)(s => Some((s, s + 1)))
 
-  private def innerFibs(x: Int, y: Int): Stream[Int] = cons(x, innerFibs(y, x + y))
+  private def innerFibs(x: Int, y: Int): Ztream[Int] = cons(x, innerFibs(y, x + y))
 
-  def fibs(): Stream[Int] = innerFibs(0, 1)
+  def fibs(): Ztream[Int] = innerFibs(0, 1)
 
-  def fibs2(): Stream[Int] = unfold((0, 1))(s => Some((s._1, (s._2, s._1 + s._2))))
+  def fibs2(): Ztream[Int] = unfold((0, 1))(s => Some((s._1, (s._2, s._1 + s._2))))
 
 }

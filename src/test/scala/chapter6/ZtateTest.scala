@@ -64,4 +64,8 @@ class ZtateTest extends FlatSpec with Matchers {
     ints(0)(Simple(38))._1 shouldBe Nil
   }
 
+  it should "work in the same way of the Stream generated sequences" in {
+    ints(3)(Simple(4))._1 shouldBe intsViaUnfold(3)(Simple(4))._1
+    intsViaUnfold(3)(Simple(4))._1 shouldBe intsViaUnfoldFoldLeft(3)(Simple(4))._1
+  }
 }
