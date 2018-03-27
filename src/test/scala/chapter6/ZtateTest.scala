@@ -3,6 +3,8 @@ package chapter6
 import chapter6.RNG._
 import org.scalatest.{FlatSpec, Matchers}
 
+import scala.util.Random
+
 class ZtateTest extends FlatSpec with Matchers {
 
   case object MockSimpleAlwaysReturnMinValue extends RNG {
@@ -39,17 +41,35 @@ class ZtateTest extends FlatSpec with Matchers {
     nonNegativeIntFromBook(MockSimpleAlwaysReturnMinValue)._1 shouldNot be(-2147483648)
   }
 
-  "double" should "generate a double between 0 and 1, not including 1" in {
-    double(Simple(13))._1 > 0 shouldBe true
-    double(Simple(13))._1 < 1 shouldBe true
+  "double" should "generate a double" in {
+    double(Simple(13))._1 shouldBe 0.002329114358872175
+  }
+
+  it should "generate a double between 0 and 1, not including 1" in {
+    double(Simple(Random.nextInt()))._1 >= 0 shouldBe true
+    double(Simple(Random.nextInt()))._1 < 1 shouldBe true
+  }
+
+  it should "behave like doubleViaMap" in {
+    double(Simple(13))._1 shouldBe doubleViaMap(Simple(13))._1
+    double(Simple(Random.nextInt()))._1 >= 0 shouldBe doubleViaMap(Simple(Random.nextInt()))._1 >= 0
+    double(Simple(Random.nextInt()))._1 < 1 shouldBe doubleViaMap(Simple(Random.nextInt()))._1 < 1
   }
 
   "intDouble" should "generate a tuple Int Double" in {
     intDouble(Simple(8))._1 shouldBe ((3077991, 0.3025446915999055))
   }
 
+  it should "behave like intDoubleViaBoth" in {
+    intDouble(Simple(543))._1 shouldBe intDoubleViaBoth(Simple(543))._1
+  }
+
   "doubleInt" should "generate a tuple Double Int" in {
     doubleInt(Simple(8))._1 shouldBe ((0.3025446915999055, 3077991))
+  }
+
+  ignore should "behave like doubleIntViaBoth" in {
+    doubleInt(Simple(8))._1 shouldBe doubleIntViaBoth(Simple(8))._1
   }
 
   "double3" should "generate a 3-tuple Double Double Double" in {
