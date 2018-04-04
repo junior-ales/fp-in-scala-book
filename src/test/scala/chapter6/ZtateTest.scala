@@ -88,4 +88,43 @@ class ZtateTest extends FlatSpec with Matchers {
     ints(3)(Simple(4))._1 shouldBe intsViaUnfold(3)(Simple(4))._1
     intsViaUnfold(3)(Simple(4))._1 shouldBe intsViaUnfoldFoldLeft(3)(Simple(4))._1
   }
+
+  "nonNegativeLessThan" should "return a non negative number less than n" in {
+    nonNegativeLessThan(843)(Simple(98))._1 shouldBe 531
+
+    val n = 4278
+    nonNegativeLessThan(n)(Simple(Random.nextInt()))._1 > 0 shouldBe true
+    nonNegativeLessThan(n)(Simple(Random.nextInt()))._1 < n shouldBe true
+  }
+
+  it should "behave the same as nonNegativeLessThanViaFlatMap" in {
+    nonNegativeLessThan(843)(Simple(98)) shouldBe nonNegativeLessThanViaFlatMap(843)(Simple(98))
+  }
+
+  "flatMap" should "flat map" in {
+    val actualString = flatMap(int)(i1 =>
+      r1 => {
+        val (i2, r2) = r1.nextInt
+        (s"number: ${i1 + i2}", r2)
+      }
+    )(Simple(54))._1
+
+    actualString shouldBe "number: 2053351016"
+  }
+
+  "map" should "map over a Rand" in {
+    map(nonNegativeInt)(i => s"likes: $i")(Simple(67))._1 shouldBe "likes: 25778176"
+  }
+
+  it should "behave like mapViaFlatMap" in {
+    map(nonNegativeInt)(i => s"likes: $i")(Simple(67)) shouldBe mapViaFlatMap(nonNegativeInt)(i => s"likes: $i")(Simple(67))
+  }
+
+  "map2" should "combine two Rand" in {
+    map2(int, double)((_, _))(Simple(5))._1 shouldBe ((1923744, 0.6883513862267137))
+  }
+
+  it should "behave like map2ViaFlatMap" in {
+    map2(int, double)((_, _))(Simple(5)) shouldBe map2ViaFlatMap(int, double)((_, _))(Simple(5))
+  }
 }

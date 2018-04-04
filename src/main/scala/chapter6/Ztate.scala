@@ -28,11 +28,11 @@ object RNG {
   def unit[A](a: A): Rand[A] =
     rng => (a, rng)
 
-  def map[A, B](s: Rand[A])(f: A => B): Rand[B] =
-    rng => {
+  def map[A, B](s: Rand[A])(f: A => B): Rand[B] = {
+    rng =>
       val (a, rng2) = s(rng)
       (f(a), rng2)
-    }
+  }
 
   @tailrec
   def nonNegativeInt(rng: RNG): (Int, RNG) = rng.nextInt match {
@@ -123,7 +123,39 @@ object RNG {
 
   def sequence[A](fs: List[Rand[A]]): Rand[List[A]] = ???
 
-  def flatMap[A, B](f: Rand[A])(g: A => Rand[B]): Rand[B] = ???
+  def flatMap[A, B](s: Rand[A])(fn: A => Rand[B]): Rand[B] = {
+    rng =>
+      val (a, rng2) = s(rng)
+      fn(a)(rng2)
+  }
+
+  def nonNegativeLessThan(n: Int): Rand[Int] = {
+    rng =>
+      val (i, rng2) = nonNegativeInt(rng)
+      val mod = i % n
+      if (i + (n - 1) - mod >= 0) (mod, rng2) else nonNegativeLessThan(n)(rng)
+  }
+
+  def nonNegativeLessThanViaFlatMap(n: Int): Rand[Int] =
+    flatMap(nonNegativeInt)(i =>
+      rng => {
+        val mod = i % n
+        if (i + (n - 1) - mod >= 0)
+          (mod, rng)
+        else
+          nonNegativeLessThan(n)(rng)
+      })
+
+  def mapViaFlatMap[A, B](s: Rand[A])(f: A => B): Rand[B] =
+    flatMap(rng => s(rng))(a => rng => (f(a), rng))
+
+  def map2ViaFlatMap[A, B, C](ra: Rand[A], rb: Rand[B])(fn: (A, B) => C): Rand[C] =
+    flatMap(ra)(
+      a =>
+        rng1 => {
+          val (b, rng2) = rb(rng1)
+          (fn(a, b), rng2)
+        })
 }
 
 case class Ztate[S, +A](run: S => (A, S)) {
