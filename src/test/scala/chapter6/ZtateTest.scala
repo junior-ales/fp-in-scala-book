@@ -127,4 +127,8 @@ class ZtateTest extends FlatSpec with Matchers {
   it should "behave like map2ViaFlatMap" in {
     map2(int, double)((_, _))(Simple(5)) shouldBe map2ViaFlatMap(int, double)((_, _))(Simple(5))
   }
+
+  "sequence" should "combine multiple Rands" in {
+    sequence(List(int, int, int))(Simple(4))._1 shouldBe List(1538995, -322738770, 1561020537)
+  }
 }

@@ -121,7 +121,8 @@ object RNG {
 
   val doubleIntViaBoth: Rand[(Double, Int)] = both(double, int)
 
-  def sequence[A](fs: List[Rand[A]]): Rand[List[A]] = ???
+  def sequence[A](fs: List[Rand[A]]): Rand[List[A]] =
+    fs.foldRight(unit(List.empty[A]))((rng, acc) => map2(rng, acc)(_ :: _))
 
   def flatMap[A, B](s: Rand[A])(fn: A => Rand[B]): Rand[B] = {
     rng =>
