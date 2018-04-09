@@ -161,13 +161,15 @@ object RNG {
 
 case class Ztate[S, +A](run: S => (A, S)) {
   def map[B](f: A => B): Ztate[S, B] =
-    ???
+    flatMap(a => Ztate.unit(f(a)))
 
   def map2[B, C](sb: Ztate[S, B])(f: (A, B) => C): Ztate[S, C] =
-    ???
+    flatMap(a => sb.map(b => f(a, b)))
 
-  def flatMap[B](f: A => Ztate[S, B]): Ztate[S, B] =
-    ???
+  def flatMap[B](f: A => Ztate[S, B]): Ztate[S, B] = Ztate(s => {
+    val (a, s1) = run(s)
+    f(a).run(s1)
+  })
 }
 
 sealed trait Input
@@ -180,6 +182,12 @@ case class Machine(locked: Boolean, candies: Int, coins: Int)
 
 object Ztate {
   type Rand[A] = Ztate[RNG, A]
+
+  def unit[S, A](a: A): Ztate[S, A] =
+    Ztate(s => (a, s))
+
+  def sequence[S, A](ztates: List[Ztate[S, A]]): Ztate[S, List[A]] =
+    ztates.reverse.foldLeft(unit[S, List[A]](List.empty[A]))((acc, f) => f.map2(acc)(_ :: _))
 
   def simulateMachine(inputs: List[Input]): Ztate[Machine, (Int, Int)] = ???
 }

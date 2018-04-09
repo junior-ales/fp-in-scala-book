@@ -120,6 +120,10 @@ class ZtateTest extends FlatSpec with Matchers {
     map(nonNegativeInt)(i => s"likes: $i")(Simple(67)) shouldBe mapViaFlatMap(nonNegativeInt)(i => s"likes: $i")(Simple(67))
   }
 
+  it should "behave like map() of the instance" in {
+    Ztate(nonNegativeInt).map(i => s"likes: $i").run(Simple(67)) shouldBe map(nonNegativeInt)(i => s"likes: $i")(Simple(67))
+  }
+
   "map2" should "combine two Rand" in {
     map2(int, double)((_, _))(Simple(5))._1 shouldBe ((1923744, 0.6883513862267137))
   }
