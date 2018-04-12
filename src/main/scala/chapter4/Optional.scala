@@ -6,7 +6,7 @@ sealed trait Optional[+A] {
     case _ => None
   }
 
-  def getOrElse[B>:A](default: => B): B = this match {
+  def getOrElse[B >: A](default: => B): B = this match {
     case Some(v) => v
     case _ => default
   }
@@ -16,7 +16,7 @@ sealed trait Optional[+A] {
     case _ => None
   }
 
-  def orElse[B>:A](ob: => Optional[B]): Optional[B] = this match {
+  def orElse[B >: A](ob: => Optional[B]): Optional[B] = this match {
     case Some(_) => this
     case _ => ob
   }
@@ -26,7 +26,9 @@ sealed trait Optional[+A] {
     case _ => None
   }
 }
+
 case class Some[+A](get: A) extends Optional[A]
+
 case object None extends Optional[Nothing]
 
 object Optional {
@@ -56,15 +58,18 @@ object Optional {
     if (xs.isEmpty) None
     else Some(xs.sum / xs.length)
 
-  def variance(xs: Seq[Double]): Optional[Double] = mean(xs).flatMap(m => mean(xs.map(x => math.pow(x - m, 2))))
+  def variance(xs: Seq[Double]): Optional[Double] =
+    mean(xs).flatMap(m => mean(xs.map(x => math.pow(x - m, 2))))
 
-  def map2[A,B,C](a: Optional[A], b: Optional[B])(f: (A, B) => C): Optional[C] = a.flatMap(aa => b.map(bb => f(aa, bb)))
+  def map2[A, B, C](a: Optional[A], b: Optional[B])(f: (A, B) => C): Optional[C] =
+    a.flatMap(aa => b.map(bb => f(aa, bb)))
 
-  def map2PatternMatching[A,B,C](a: Optional[A], b: Optional[B])(f: (A, B) => C): Optional[C] = (a, b) match {
-    case (Some(v1), Some(v2)) => Some(f(v1, v2))
-    case (None, _) => None
-    case (_, None) => None
-  }
+  def map2PatternMatching[A, B, C](a: Optional[A], b: Optional[B])(f: (A, B) => C): Optional[C] =
+    (a, b) match {
+      case (Some(v1), Some(v2)) => Some(f(v1, v2))
+      case (None, _) => None
+      case (_, None) => None
+    }
 
   def traverse[A, B](as: List[A])(f: A => Optional[B]): Optional[List[B]] = as match {
     case Nil => Some(Nil)
