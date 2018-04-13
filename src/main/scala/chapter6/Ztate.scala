@@ -172,14 +172,6 @@ case class Ztate[S, +A](run: S => (A, S)) {
   })
 }
 
-sealed trait Input
-
-case object Coin extends Input
-
-case object Turn extends Input
-
-case class Machine(locked: Boolean, candies: Int, coins: Int)
-
 object Ztate {
   type Rand[A] = Ztate[RNG, A]
 
@@ -189,6 +181,13 @@ object Ztate {
   def sequence[S, A](ztates: List[Ztate[S, A]]): Ztate[S, List[A]] =
     ztates.reverse.foldLeft(unit[S, List[A]](List.empty[A]))((acc, f) => f.map2(acc)(_ :: _))
 
-  def simulateMachine(inputs: List[Input]): Ztate[Machine, (Int, Int)] = ???
+  def get[S]: Ztate[S, S] = Ztate(s => (s, s))
+
+  def set[S](s: S): Ztate[S, Unit] = Ztate(_ => ((), s))
+
+  def modify[S](f: S => S): Ztate[S, Unit] = for {
+    s <- get // Gets the current state and assigns it to `s`.
+    _ <- set(f(s)) // Sets the new state to `f` applied to `s`.
+  } yield ()
 }
 
